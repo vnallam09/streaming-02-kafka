@@ -225,6 +225,9 @@ Clear the terminal, then start the consumer.
 ```shell
 clear
 uv run python -m streaming.kafka_consumer_case
+
+# Teja's consumer (counts messages by Kafka key, writes consumed_sales_teja.csv)
+uv run python -m streaming.kafka_consumer_teja
 ```
 
 To start fresh, see
@@ -232,6 +235,22 @@ To start fresh, see
 to delete the topic and recreate it.
 
 </details>
+
+## Observations (Venkat Teja Nallamothu)
+
+- The producer and consumer never call each other. The producer writes sales
+  messages to a Kafka **topic**; the consumer subscribes to that topic and
+  reads them on its own schedule. Kafka sits between them as the broker.
+- Because the consumer resets its offset to the beginning, it can start late
+  and still read every message. Kafka keeps messages in the topic instead of
+  deleting them on read — this is what makes a stream **replayable**.
+- Each message carries a **key** (`region_id`, e.g. `US-TX`, `CA-QC`). The key
+  decides the partition, so all sales for one region stay ordered together.
+- Phase 4/5 change: `kafka_consumer_teja.py` is a copy of the case consumer
+  that tallies consumed messages by their Kafka key and logs the per-key
+  breakdown in the summary, then writes to `data/output/consumed_sales_teja.csv`.
+  Running it against the 3-message sample shows `US-TX = 2` and `CA-QC = 1`,
+  which makes it easy to compare how different keys appear in the stream.
 
 ## Notes
 

@@ -54,6 +54,7 @@ Thumbs.db
 # WHY: IDE metadata is machine-local and should not be tracked.
 *.code-workspace
 .idea/
+.claude/
 
 # === Environment variables and secrets ===
 
